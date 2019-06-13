@@ -1,6 +1,10 @@
 from imaplib import IMAP4_SSL
 import getpass
 import time
+import os
+
+# Change this to "False" if you don't want cases to automatically open in your browser
+openCaseLinks = True
 
 client = IMAP4_SSL('imap-mail.outlook.com', 993)
 
@@ -31,13 +35,21 @@ for message in messages:
         if("Account" == values[x].split(':')[0]):
             acct = values[x].split(':')[1].strip()
             alert = values[x + 3].split(':')[1].strip()
+            link = None
+            try:
+                link = values[x + 5].split(': ')[1].strip()
+                if(openCaseLinks):
+                    os.system("firefox %s" % link)
+            except Exception:
+                pass
             if(accounts.count(acct) == 0):
-                print("Found %s" % acct)
+                print("Found %s - Opening Case" % acct)
                 accounts.append(acct)
                 alerts.append([alert])
             else:
                 if(alerts[accounts.index(acct)].count(alert) == 0):
                     alerts[accounts.index(acct)].append(alert)
+
 print('\n')
 print("-" * 5 + "Printable Output" + "-" * 5)
 for account in range(0, len(accounts)):
